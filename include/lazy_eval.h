@@ -1,11 +1,15 @@
-#ifndef LAZY_EVAL_H
-#define LAZY_EVAL_H
+#ifndef MOU_LAZY_EVAL_H
+#define MOU_LAZY_EVAL_H
 
 /*
  * \brief: refer to github.com/dmlc/mshadow
  */
 
 #include <cstdio>
+
+namespace mou {
+
+namespace expr {
 
 template <typename EType>
 struct Exp {
@@ -79,4 +83,8 @@ operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<div>(lhs, rhs);
 }
 
-#endif // LAZY_EVAL_H
+} // namespace expr
+
+} // namespace mou
+
+#endif // MOU_LAZY_EVAL_H

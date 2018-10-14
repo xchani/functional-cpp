@@ -1,6 +1,9 @@
 #include <cstdio>
 #include "../include/lazy_eval.h"
 
+using namespace mou;
+using namespace mou::expr;
+
 struct maximum {
     inline static float Map(float a, float b) {
         return a > b ? a : b;
