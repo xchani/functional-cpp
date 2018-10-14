@@ -6,6 +6,7 @@
  */
 
 #include <cstdio>
+#include <type_traits>
 
 namespace mou {
 
@@ -23,6 +24,7 @@ template <typename OP, typename Tlhs, typename Trhs>
 struct BinaryMapExp : public Exp<BinaryMapExp<OP, Tlhs, Trhs> > {
     const Tlhs &lhs;
     const Trhs &rhs;
+    typedef std::result_of_t<decltype(&OP::Map)(typename Tlhs::type,typename Trhs::type)> type;
 
     BinaryMapExp(const Tlhs &lhs, const Trhs &rhs)
         : lhs(lhs), rhs(rhs) {}
@@ -36,6 +38,7 @@ template <typename DType>
 struct Vec : public Exp<Vec<DType> > {
     DType *dptr;
     size_t len;
+    typedef DType type;
 
     Vec(DType *dptr, size_t len) : dptr(dptr), len(len) {} 
 
@@ -53,32 +56,36 @@ struct Vec : public Exp<Vec<DType> > {
     }
 };
 
-template <typename OP, typename Tlhs, typename Trhs>
-inline BinaryMapExp<OP, Tlhs, Trhs>
+template <template<typename, typename> class OP, typename Tlhs, typename Trhs>
+inline BinaryMapExp<OP<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 F(const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
-    return BinaryMapExp<OP, Tlhs, Trhs>(lhs.self(), rhs.self());
+    return BinaryMapExp<
+                OP<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs
+           >( lhs.self(), rhs.self());
 }
 
+template <typename Tlhs, typename Trhs>
 struct mul {
-    inline static float Map(float a, float b) {
+    inline static auto Map(Tlhs a, Trhs b) {
         return a * b;
     }
 };
 
 template <typename Tlhs, typename Trhs>
-inline BinaryMapExp<mul, Tlhs, Trhs>
+inline BinaryMapExp<mul<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator * (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<mul>(lhs, rhs);
 }
 
+template <typename Tlhs, typename Trhs>
 struct div {
-    inline static int Map(int a, int b) {
+    inline static auto Map(Tlhs a, Trhs b) {
         return a / b;
     }
 };
 
 template <typename Tlhs, typename Trhs>
-inline BinaryMapExp<div, Tlhs, Trhs>
+inline BinaryMapExp<div<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<div>(lhs, rhs);
 }
