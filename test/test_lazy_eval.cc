@@ -28,10 +28,10 @@ int main(void) {
     DType sc[n] = {3, 4, 5};
     Vec<DType> A(sa, n), B(sb, n), C(sc, n);
 
-    A = B / F<maximum>(C, B);
+    A = F<identity>(B) / F<maximum>(C, B);
 
     for (int i = 0; i < n; ++i) {
-        printf("%d:%f == %f / max(%f, %f)\n",
+        printf("%d:%f == id(%f) / max(%f, %f)\n",
                 i,
                 static_cast<float>(A.dptr[i]),
                 static_cast<float>(B.dptr[i]),

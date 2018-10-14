@@ -20,6 +20,18 @@ struct Exp {
     }
 };
 
+template <typename OP, typename Ths>
+struct UnaryMapExp : public Exp<UnaryMapExp<OP, Ths> > {
+    const Ths &hs;
+    typedef std::result_of_t<decltype(&OP::Map)(typename Ths::type)> type;
+
+    UnaryMapExp(const Ths &hs)
+        : hs(hs) {}
+    inline auto Eval(int i) const {
+        return OP::Map(hs.Eval(i));
+    }
+};
+
 template <typename OP, typename Tlhs, typename Trhs>
 struct BinaryMapExp : public Exp<BinaryMapExp<OP, Tlhs, Trhs> > {
     const Tlhs &lhs;
@@ -56,6 +68,14 @@ struct Vec : public Exp<Vec<DType> > {
     }
 };
 
+template <template<typename> class OP, typename Ths>
+inline UnaryMapExp<OP<typename Ths::type>, Ths>
+F(const Exp<Ths> &hs) {
+    return UnaryMapExp<
+                OP<typename Ths::type>, Ths
+           >(hs.self());
+}
+
 template <template<typename, typename> class OP, typename Tlhs, typename Trhs>
 inline BinaryMapExp<OP<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 F(const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
@@ -63,6 +83,13 @@ F(const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
                 OP<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs
            >( lhs.self(), rhs.self());
 }
+
+template <typename Ths>
+struct identity {
+    inline static auto Map(Ths a) {
+        return a;
+    }
+};
 
 template <typename Tlhs, typename Trhs>
 struct mul {
