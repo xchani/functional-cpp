@@ -15,15 +15,15 @@ struct Exp {
     }
 };
 
-template <typename DType, typename OP, typename Tlhs, typename Trhs>
-struct BinaryMapExp : public Exp<BinaryMapExp<DType, OP, Tlhs, Trhs> > {
+template <typename OP, typename Tlhs, typename Trhs>
+struct BinaryMapExp : public Exp<BinaryMapExp<OP, Tlhs, Trhs> > {
     const Tlhs &lhs;
     const Trhs &rhs;
 
     BinaryMapExp(const Tlhs &lhs, const Trhs &rhs)
         : lhs(lhs), rhs(rhs) {}
 
-    inline DType Eval(int i) const {
+    inline auto Eval(int i) const {
         return OP::Map(lhs.Eval(i), rhs.Eval(i));
     }
 };
@@ -49,10 +49,10 @@ struct Vec : public Exp<Vec<DType> > {
     }
 };
 
-template <typename DType, typename OP, typename Tlhs, typename Trhs>
-inline BinaryMapExp<DType, OP, Tlhs, Trhs>
+template <typename OP, typename Tlhs, typename Trhs>
+inline BinaryMapExp<OP, Tlhs, Trhs>
 F(const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
-    return BinaryMapExp<DType, OP, Tlhs, Trhs>(lhs.self(), rhs.self());
+    return BinaryMapExp<OP, Tlhs, Trhs>(lhs.self(), rhs.self());
 }
 
 struct mul {
@@ -61,10 +61,10 @@ struct mul {
     }
 };
 
-template <typename DType, typename Tlhs, typename Trhs>
-inline BinaryMapExp<DType, mul, Tlhs, Trhs>
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<mul, Tlhs, Trhs>
 operator * (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
-    return F<DType, mul>(lhs, rhs);
+    return F<mul>(lhs, rhs);
 }
 
 struct div {
@@ -73,10 +73,10 @@ struct div {
     }
 };
 
-template <typename DType, typename Tlhs, typename Trhs>
-inline BinaryMapExp<DType, div, Tlhs, Trhs>
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<div, Tlhs, Trhs>
 operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
-    return F<DType, div>(lhs, rhs);
+    return F<div>(lhs, rhs);
 }
 
 #endif // LAZY_EVAL_H
