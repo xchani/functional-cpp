@@ -1,5 +1,5 @@
-# Functional C++
-Funtional features for C++
+# Mou
+Library for C++ 14 containing funtional features and so on.
 
 # TODO
 - [ ] Lazy Evaluation
@@ -7,3 +7,4 @@ Funtional features for C++
     - [ ] Deduce return type of expression
     - [ ] Binary Expression for int
 - [ ] Pattern Matching
+- [ ] Reflection
