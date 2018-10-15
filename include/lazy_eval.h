@@ -81,7 +81,7 @@ inline BinaryMapExp<OP<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 F(const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return BinaryMapExp<
                 OP<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs
-           >( lhs.self(), rhs.self());
+           >(lhs.self(), rhs.self());
 }
 
 template <typename Ths>
