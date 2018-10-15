@@ -12,6 +12,13 @@ namespace mou {
 
 namespace expr {
 
+/*
+ * Expression Type
+ * - Scalar
+ * - Unary
+ * - Binary
+ * - Ternary
+ */
 template <typename EType>
 struct Exp {
     // Exp<EType> -> EType
@@ -77,6 +84,9 @@ struct TernaryMapExp : public Exp<TernaryMapExp<OP, Tlhs, Tchs, Trhs> > {
     }
 };
 
+/*
+ * Vector
+ */
 template <typename DType>
 struct Vec : public Exp<Vec<DType> > {
     DType *dptr;
@@ -99,6 +109,9 @@ struct Vec : public Exp<Vec<DType> > {
     }
 };
 
+/*
+ * Recursively get expression
+ */
 template <template<typename> class OP, typename Ths>
 inline UnaryMapExp<OP<typename Ths::type>, Ths>
 F(const Exp<Ths> &hs) {
@@ -127,6 +140,10 @@ F(const Exp<Tlhs> &lhs, const Exp<Tchs> &chs, const Exp<Trhs> &rhs) {
            >(lhs.self(), chs.self(), rhs.self());
 }
 
+/*
+ * Unary Operator
+ * - identity
+ */
 template <typename Ths>
 struct identity {
     inline static auto Map(Ths a) {
@@ -134,6 +151,11 @@ struct identity {
     }
 };
 
+/*
+ * Binary Operator
+ * - mul
+ * - div
+ */
 template <typename Tlhs, typename Trhs>
 struct mul {
     inline static auto Map(Tlhs a, Trhs b) {
@@ -141,6 +163,28 @@ struct mul {
     }
 };
 
+template <typename Tlhs, typename Trhs>
+struct div {
+    inline static auto Map(Tlhs a, Trhs b) {
+        return a / b;
+    }
+};
+
+/*
+ * Ternary Operator
+ * - axpy
+ */
+
+template <typename Tlhs, typename Tchs, typename Trhs>
+struct axpy {
+    inline static auto Map(Tlhs a, Tchs x, Trhs y) {
+        return a * x + y;
+    }
+};
+
+/*
+ * Wrapper for Binary Operator
+ */
 template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<mul<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator * (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
@@ -166,24 +210,10 @@ operator * (const Exp<Tlhs> &lhs, const Trhs &rhs) {
 }
 
 template <typename Tlhs, typename Trhs>
-struct div {
-    inline static auto Map(Tlhs a, Trhs b) {
-        return a / b;
-    }
-};
-
-template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<div<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<div>(lhs, rhs);
 }
-
-template <typename Tlhs, typename Tchs, typename Trhs>
-struct axpy {
-    inline static auto Map(Tlhs a, Tchs x, Trhs y) {
-        return a * x + y;
-    }
-};
 
 } // namespace expr
 
