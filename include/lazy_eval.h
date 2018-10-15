@@ -36,13 +36,32 @@ template <typename OP, typename Tlhs, typename Trhs>
 struct BinaryMapExp : public Exp<BinaryMapExp<OP, Tlhs, Trhs> > {
     const Tlhs &lhs;
     const Trhs &rhs;
-    typedef std::result_of_t<decltype(&OP::Map)(typename Tlhs::type,typename Trhs::type)> type;
+    typedef std::result_of_t<decltype(&OP::Map)(
+                typename Tlhs::type,typename Trhs::type
+            )> type;
 
     BinaryMapExp(const Tlhs &lhs, const Trhs &rhs)
         : lhs(lhs), rhs(rhs) {}
 
     inline auto Eval(int i) const {
         return OP::Map(lhs.Eval(i), rhs.Eval(i));
+    }
+};
+
+template <typename OP, typename Tlhs, typename Tchs, typename Trhs>
+struct TernaryMapExp : public Exp<TernaryMapExp<OP, Tlhs, Tchs, Trhs> > {
+    const Tlhs &lhs;
+    const Tchs &chs;
+    const Trhs &rhs;
+    typedef std::result_of_t<decltype(&OP::Map)(
+                typename Tlhs::type,typename Tchs::type,typename Trhs::type
+            )> type;
+
+    TernaryMapExp(const Tlhs &lhs, const Tchs &chs, const Trhs &rhs)
+        : lhs(lhs), chs(chs), rhs(rhs) {}
+
+    inline auto Eval(int i) const {
+        return OP::Map(lhs.Eval(i), chs.Eval(i), rhs.Eval(i));
     }
 };
 
@@ -84,6 +103,18 @@ F(const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
            >(lhs.self(), rhs.self());
 }
 
+template <template<typename, typename, typename> class OP,
+          typename Tlhs, typename Tchs, typename Trhs>
+inline TernaryMapExp<
+    OP<typename Tlhs::type, typename Tchs::type, typename Trhs::type>,
+    Tlhs, Tchs, Trhs>
+F(const Exp<Tlhs> &lhs, const Exp<Tchs> &chs, const Exp<Trhs> &rhs) {
+    return TernaryMapExp<
+                OP<typename Tlhs::type, typename Tchs::type, typename Trhs::type>,
+                Tlhs, Tchs, Trhs
+           >(lhs.self(), chs.self(), rhs.self());
+}
+
 template <typename Ths>
 struct identity {
     inline static auto Map(Ths a) {
@@ -116,6 +147,13 @@ inline BinaryMapExp<div<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<div>(lhs, rhs);
 }
+
+template <typename Tlhs, typename Tchs, typename Trhs>
+struct axpy {
+    inline static auto Map(Tlhs a, Tchs x, Trhs y) {
+        return a * x + y;
+    }
+};
 
 } // namespace expr
 
