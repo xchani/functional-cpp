@@ -20,6 +20,18 @@ struct Exp {
     }
 };
 
+template <typename Ths>
+struct ScalarMapExp : public Exp<ScalarMapExp<Ths> > {
+    const Ths &hs;
+    typedef Ths type;
+
+    ScalarMapExp(const Ths &hs)
+        : hs(hs) {}
+    inline auto Eval(int i) const {
+        return hs;
+    }
+};
+
 template <typename OP, typename Ths>
 struct UnaryMapExp : public Exp<UnaryMapExp<OP, Ths> > {
     const Ths &hs;
@@ -133,6 +145,24 @@ template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<mul<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator * (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<mul>(lhs, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    mul<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
+    ScalarMapExp<Tlhs>, Trhs>
+operator * (const Tlhs &lhs, const Exp<Trhs> &rhs) {
+    static auto expr = ScalarMapExp<Tlhs>(lhs);
+    return F<mul>(expr, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    mul<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
+    Tlhs, ScalarMapExp<Trhs> >
+operator * (const Exp<Tlhs> &lhs, const Trhs &rhs) {
+    static auto expr = ScalarMapExp<Trhs>(rhs);
+    return F<mul>(lhs, expr);
 }
 
 template <typename Tlhs, typename Trhs>
