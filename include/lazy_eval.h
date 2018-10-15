@@ -208,7 +208,10 @@ operator + (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<plus>(lhs, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Tlhs>::value,
+          typename std::enable_if<T, Tlhs>::type* helper = nullptr>
 inline BinaryMapExp<
     plus<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
     ScalarMapExp<Tlhs>, Trhs>
@@ -217,7 +220,10 @@ operator + (const Tlhs &lhs, const Exp<Trhs> &rhs) {
     return F<plus>(expr, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Trhs>::value,
+          typename std::enable_if<T, Trhs>::type* helper = nullptr>
 inline BinaryMapExp<
     plus<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
     Tlhs, ScalarMapExp<Trhs> >
@@ -232,7 +238,10 @@ operator - (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<minus>(lhs, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Tlhs>::value,
+          typename std::enable_if<T, Tlhs>::type* helper = nullptr>
 inline BinaryMapExp<
     minus<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
     ScalarMapExp<Tlhs>, Trhs>
@@ -241,7 +250,10 @@ operator - (const Tlhs &lhs, const Exp<Trhs> &rhs) {
     return F<minus>(expr, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Trhs>::value,
+          typename std::enable_if<T, Trhs>::type* helper = nullptr>
 inline BinaryMapExp<
     minus<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
     Tlhs, ScalarMapExp<Trhs> >
@@ -256,7 +268,10 @@ operator * (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<mul>(lhs, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Tlhs>::value,
+          typename std::enable_if<T, Tlhs>::type* helper = nullptr>
 inline BinaryMapExp<
     mul<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
     ScalarMapExp<Tlhs>, Trhs>
@@ -265,7 +280,10 @@ operator * (const Tlhs &lhs, const Exp<Trhs> &rhs) {
     return F<mul>(expr, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Trhs>::value,
+          typename std::enable_if<T, Trhs>::type* helper = nullptr>
 inline BinaryMapExp<
     mul<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
     Tlhs, ScalarMapExp<Trhs> >
@@ -280,7 +298,10 @@ operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<div>(lhs, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Tlhs>::value,
+          typename std::enable_if<T, Tlhs>::type* helper = nullptr>
 inline BinaryMapExp<
     div<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
     ScalarMapExp<Tlhs>, Trhs>
@@ -289,7 +310,10 @@ operator / (const Tlhs &lhs, const Exp<Trhs> &rhs) {
     return F<div>(expr, rhs);
 }
 
-template <typename Tlhs, typename Trhs>
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Trhs>::value,
+          typename std::enable_if<T, Trhs>::type* helper = nullptr>
 inline BinaryMapExp<
     div<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
     Tlhs, ScalarMapExp<Trhs> >
