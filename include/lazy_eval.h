@@ -153,9 +153,26 @@ struct identity {
 
 /*
  * Binary Operator
+ * - plus
+ * - minus
  * - mul
  * - div
  */
+
+template <typename Tlhs, typename Trhs>
+struct plus {
+    inline static auto Map(Tlhs a, Trhs b) {
+        return a + b;
+    }
+};
+
+template <typename Tlhs, typename Trhs>
+struct minus {
+    inline static auto Map(Tlhs a, Trhs b) {
+        return a - b;
+    }
+};
+
 template <typename Tlhs, typename Trhs>
 struct mul {
     inline static auto Map(Tlhs a, Trhs b) {
@@ -186,6 +203,54 @@ struct axpy {
  * Wrapper for Binary Operator
  */
 template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<plus<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
+operator + (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
+    return F<plus>(lhs, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    plus<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
+    ScalarMapExp<Tlhs>, Trhs>
+operator + (const Tlhs &lhs, const Exp<Trhs> &rhs) {
+    static auto expr = ScalarMapExp<Tlhs>(lhs);
+    return F<plus>(expr, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    plus<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
+    Tlhs, ScalarMapExp<Trhs> >
+operator + (const Exp<Tlhs> &lhs, const Trhs &rhs) {
+    static auto expr = ScalarMapExp<Trhs>(rhs);
+    return F<plus>(lhs, expr);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<minus<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
+operator - (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
+    return F<minus>(lhs, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    minus<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
+    ScalarMapExp<Tlhs>, Trhs>
+operator - (const Tlhs &lhs, const Exp<Trhs> &rhs) {
+    static auto expr = ScalarMapExp<Tlhs>(lhs);
+    return F<minus>(expr, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    minus<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
+    Tlhs, ScalarMapExp<Trhs> >
+operator - (const Exp<Tlhs> &lhs, const Trhs &rhs) {
+    static auto expr = ScalarMapExp<Trhs>(rhs);
+    return F<minus>(lhs, expr);
+}
+
+template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<mul<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator * (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<mul>(lhs, rhs);
@@ -213,6 +278,24 @@ template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<div<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
     return F<div>(lhs, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    div<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
+    ScalarMapExp<Tlhs>, Trhs>
+operator / (const Tlhs &lhs, const Exp<Trhs> &rhs) {
+    static auto expr = ScalarMapExp<Tlhs>(lhs);
+    return F<div>(expr, rhs);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<
+    div<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
+    Tlhs, ScalarMapExp<Trhs> >
+operator / (const Exp<Tlhs> &lhs, const Trhs &rhs) {
+    static auto expr = ScalarMapExp<Trhs>(rhs);
+    return F<div>(lhs, expr);
 }
 
 } // namespace expr
