@@ -10,3 +10,6 @@ Library for C++ 14 containing funtional features and so on.
     - [x] Deduce return type of expression
 - [ ] Pattern Matching
 - [ ] Reflection
+- [ ] Logger
+    - [x] Checker
+    - [ ] Logger
