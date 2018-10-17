@@ -1,6 +1,8 @@
 #ifndef MOU_LOGGER_H
 #define MOU_LOGGER_H
 
+#include <cstdio>
+
 namespace mou {
 
 namespace logger {

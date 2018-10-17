@@ -1,4 +1,3 @@
-#include <cstdio>
 #include "../include/logger.h"
 
 using namespace mou;
