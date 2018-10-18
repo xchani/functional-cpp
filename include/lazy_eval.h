@@ -157,6 +157,7 @@ struct identity {
  * - minus
  * - mul
  * - div
+ * - mod
  */
 
 template <typename Tlhs, typename Trhs>
@@ -184,6 +185,13 @@ template <typename Tlhs, typename Trhs>
 struct div {
     inline static auto Map(Tlhs a, Trhs b) {
         return a / b;
+    }
+};
+
+template <typename Tlhs, typename Trhs>
+struct mod {
+    inline static auto Map(Tlhs a, Trhs b) {
+        return a % b;
     }
 };
 
@@ -320,6 +328,36 @@ inline BinaryMapExp<
 operator / (const Exp<Tlhs> &lhs, const Trhs &rhs) {
     static auto expr = ScalarMapExp<Trhs>(rhs);
     return F<div>(lhs, expr);
+}
+
+template <typename Tlhs, typename Trhs>
+inline BinaryMapExp<mod<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
+operator % (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
+    return F<mod>(lhs, rhs);
+}
+
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Tlhs>::value,
+          typename std::enable_if<T, Tlhs>::type* helper = nullptr>
+inline BinaryMapExp<
+    mod<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,
+    ScalarMapExp<Tlhs>, Trhs>
+operator % (const Tlhs &lhs, const Exp<Trhs> &rhs) {
+    static auto expr = ScalarMapExp<Tlhs>(lhs);
+    return F<mod>(expr, rhs);
+}
+
+template <typename Tlhs,
+          typename Trhs,
+          bool T = std::is_scalar<Trhs>::value,
+          typename std::enable_if<T, Trhs>::type* helper = nullptr>
+inline BinaryMapExp<
+    mod<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,
+    Tlhs, ScalarMapExp<Trhs> >
+operator % (const Exp<Tlhs> &lhs, const Trhs &rhs) {
+    static auto expr = ScalarMapExp<Trhs>(rhs);
+    return F<mod>(lhs, expr);
 }
 
 } // namespace expr

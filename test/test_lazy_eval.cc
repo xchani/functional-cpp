@@ -38,11 +38,11 @@ int main(void) {
     }
 
     // test for unary and binary expression
-    D = F<identity>(B) / F<maximum>(C, B);
+    D = (F<identity>(B) / F<maximum>(C, B) + 2) % A;
 
     for (int i = 0; i < n; ++i) {
-        printf("%d:%d == id(%d) / max(%d, %d)\n",
-               i, D.dptr[i], B.dptr[i], C.dptr[i], B.dptr[i]);
+        printf("%d:%d == (id(%d) / max(%d, %d) + 2) %% %d\n",
+               i, D.dptr[i], B.dptr[i], C.dptr[i], B.dptr[i], A.dptr[i]);
     }
 
     // test for ternary expression
