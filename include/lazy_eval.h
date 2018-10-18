@@ -208,7 +208,7 @@ struct axpy {
 };
 
 /*
- * Wrapper for Binary Operator
+ * Wrapper for Binary Operator plus
  */
 template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<plus<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
@@ -240,6 +240,9 @@ operator + (const Exp<Tlhs> &lhs, const Trhs &rhs) {
     return F<plus>(lhs, expr);
 }
 
+/*
+ * Wrapper for Binary Operator minus
+ */
 template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<minus<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator - (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
@@ -270,6 +273,9 @@ operator - (const Exp<Tlhs> &lhs, const Trhs &rhs) {
     return F<minus>(lhs, expr);
 }
 
+/*
+ * Wrapper for Binary Operator mul
+ */
 template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<mul<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator * (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
@@ -300,6 +306,9 @@ operator * (const Exp<Tlhs> &lhs, const Trhs &rhs) {
     return F<mul>(lhs, expr);
 }
 
+/*
+ * Wrapper for Binary Operator div
+ */
 template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<div<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator / (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
@@ -330,6 +339,9 @@ operator / (const Exp<Tlhs> &lhs, const Trhs &rhs) {
     return F<div>(lhs, expr);
 }
 
+/*
+ * Wrapper for Binary Operator mod
+ */
 template <typename Tlhs, typename Trhs>
 inline BinaryMapExp<mod<typename Tlhs::type, typename Trhs::type>, Tlhs, Trhs>
 operator % (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {
