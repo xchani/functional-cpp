@@ -2,7 +2,7 @@
 Library for C++ 14 containing funtional features and so on.
 
 # TODO
-- [ ] Lazy Evaluation
+- [x] Lazy Evaluation
     - [x] Scalar Expression
     - [x] Unary Expression for Vector
     - [x] Binary Expression for Vector
