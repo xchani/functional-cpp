@@ -9,6 +9,7 @@ Library for C++ 17 containing funtional features and so on.
     - [x] Ternary Expression for Vector
     - [x] Deduce return type of expression
 - [ ] Pattern Matching
+    - [x] Type-matching with overloaded operator()'s
 - [ ] Reflection
     - [x] Simple static reflection
 - [ ] Logger
