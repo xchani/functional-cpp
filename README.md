@@ -1,5 +1,5 @@
 # Mou
-Library for C++ 14 containing funtional features and so on.
+Library for C++ 17 containing funtional features and so on.
 
 # TODO
 - [x] Lazy Evaluation
