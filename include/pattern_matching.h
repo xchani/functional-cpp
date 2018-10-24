@@ -13,8 +13,8 @@ struct overloaded : Ts... {
 template <typename... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-};
+}; // namespace pm
 
-};
+}; // namespace mou
 
 #endif // MOU_PATTERN_MATCHING_H
