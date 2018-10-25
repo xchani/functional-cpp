@@ -1,5 +1,5 @@
+#include "../include/mou/reflection.h"
 #include <cassert>
-#include "../include/reflection.h"
 
 using namespace mou::reflection;
 
@@ -8,9 +8,8 @@ struct sc {
     char b;
 };
 
-int main(void) {
-    sc s;
-    s.a = 1, s.b = 'a';
+int main() {
+    sc s { 1, 'a' };
     auto ts = tuple_binding(s);
     static_assert(std::is_same_v<decltype(ts), std::tuple<int, char>>);
     assert(std::get<0>(ts) == 1);

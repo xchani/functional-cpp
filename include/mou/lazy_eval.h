@@ -22,7 +22,7 @@ namespace expr {
 template <typename EType>
 struct Exp {
     // Exp<EType> -> EType
-    inline const EType& self(void) const {
+    inline const EType& self() const {
         return *static_cast<const EType*>(this);
     }
 };
@@ -30,11 +30,11 @@ struct Exp {
 template <typename Ths>
 struct ScalarMapExp : public Exp<ScalarMapExp<Ths> > {
     const Ths &hs;
-    typedef Ths type;
+    using type = Ths;
 
-    ScalarMapExp(const Ths &hs)
+    explicit ScalarMapExp(const Ths &hs)
         : hs(hs) {}
-    inline auto Eval(int i) const {
+    inline auto Eval(int  /*i*/) const {
         return hs;
     }
 };
@@ -42,9 +42,9 @@ struct ScalarMapExp : public Exp<ScalarMapExp<Ths> > {
 template <typename OP, typename Ths>
 struct UnaryMapExp : public Exp<UnaryMapExp<OP, Ths> > {
     const Ths &hs;
-    typedef std::result_of_t<decltype(&OP::Map)(typename Ths::type)> type;
+    using type = std::result_of_t<decltype(&OP::Map) (typename Ths::type)>;
 
-    UnaryMapExp(const Ths &hs)
+    explicit UnaryMapExp(const Ths &hs)
         : hs(hs) {}
     inline auto Eval(int i) const {
         return OP::Map(hs.Eval(i));
@@ -55,9 +55,9 @@ template <typename OP, typename Tlhs, typename Trhs>
 struct BinaryMapExp : public Exp<BinaryMapExp<OP, Tlhs, Trhs> > {
     const Tlhs &lhs;
     const Trhs &rhs;
-    typedef std::result_of_t<decltype(&OP::Map)(
-                typename Tlhs::type,typename Trhs::type
-            )> type;
+    using type = std::result_of_t<decltype(&OP::Map) (
+                typename Tlhs::type, typename Trhs::type
+            )>;
 
     BinaryMapExp(const Tlhs &lhs, const Trhs &rhs)
         : lhs(lhs), rhs(rhs) {}
@@ -72,9 +72,9 @@ struct TernaryMapExp : public Exp<TernaryMapExp<OP, Tlhs, Tchs, Trhs> > {
     const Tlhs &lhs;
     const Tchs &chs;
     const Trhs &rhs;
-    typedef std::result_of_t<decltype(&OP::Map)(
-                typename Tlhs::type,typename Tchs::type,typename Trhs::type
-            )> type;
+    using type = std::result_of_t<decltype(&OP::Map) (
+                typename Tlhs::type, typename Tchs::type, typename Trhs::type
+            )>;
 
     TernaryMapExp(const Tlhs &lhs, const Tchs &chs, const Trhs &rhs)
         : lhs(lhs), chs(chs), rhs(rhs) {}
@@ -91,7 +91,7 @@ template <typename DType>
 struct Vec : public Exp<Vec<DType> > {
     DType *dptr;
     size_t len;
-    typedef DType type;
+    using type = DType;
 
     Vec(DType *dptr, size_t len) : dptr(dptr), len(len) {} 
 

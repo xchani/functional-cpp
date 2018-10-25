@@ -1,9 +1,9 @@
-#include "../include/logger.h"
+#include "../include/mou/logger.h"
 
 using namespace mou;
 using namespace mou::logger;
 
-int main(void) {
+int main() {
     CHECK(0 == 1);
     CHECK_EQ(0, 1);
     CHECK_LT(0, 1);

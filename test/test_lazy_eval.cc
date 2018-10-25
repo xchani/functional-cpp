@@ -1,6 +1,6 @@
+#include "../include/mou/lazy_eval.h"
 #include <cstdio>
 #include <type_traits>
-#include "../include/lazy_eval.h"
 
 using namespace mou;
 using namespace mou::expr;
@@ -21,7 +21,7 @@ struct minimum {
 
 const int n = 3;
 
-int main(void) {
+int main() {
     using DType = int;
     DType sa[n] = {1, 2, 3};
     DType sb[n] = {2, 3, 4};
