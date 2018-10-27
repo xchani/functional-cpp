@@ -15,3 +15,12 @@ Library for C++ 17 containing funtional features and so on.
 - [ ] Logger
     - [x] Checker
     - [ ] Logger
+- [ ] Tensor
+    - [x] Basic Tensor
+    - [ ] Slicing
+    - [ ] Dot Product
+    - [ ] GEMM
+    - [ ] SIMD using instrinsics for Dot Product
+    - [ ] SIMD using instrinsics for GEMM
+    - [ ] CUDA kernel for Dot Product
+    - [ ] CUDA kernel for GEMM
