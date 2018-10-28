@@ -26,7 +26,7 @@ class Shape {
     }
 
     explicit Shape() {
-        shape = {0};
+        shape = {};
         len = 0;
     }
 
@@ -44,9 +44,23 @@ class Shape {
         return shape == other.shape;
     }
 
+    Shape& operator = (std::initializer_list<DType> l) {
+        shape = l;
+        len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
+        return *this;
+    }
+
+    inline DType Dims() const {
+        return shape.size();
+    }
+
     inline DType Size() const {
         //len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
         return len;
+    }
+
+    inline DType Size(size_t i) const {
+        return shape.at(i);
     }
 
     inline DType Size(size_t start, size_t end) const {
@@ -111,9 +125,15 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     // Copy Assignment
     Tensor& operator = (const Tensor& src) {
         // TODO(Chenxia Han): Check shape in compile time
-        assert(shape == src.shape);
-        shape = src.shape;
-
+        if (shape == src.shape) {
+            shape = src.shape;
+        } else {
+            shape = src.shape;
+            if (dptr != nullptr) {
+                std::free(dptr);
+            }
+            dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
+        }
         std::memcpy(dptr, src.dptr, sizeof(DType) * shape.Size());
 
         return *this;
@@ -121,12 +141,24 @@ class Tensor : public expr::Exp<Tensor<DType> > {
 
     // Move Assignment
     Tensor& operator = (Tensor&& src) noexcept {
-        assert(shape == src.shape);
+        if (dptr != nullptr) {
+            std::free(dptr);
+        }
         shape = std::move(src.shape);
 
         dptr = src.dptr;
         src.dptr = nullptr;
 
+        return *this;
+    }
+
+    Tensor& operator = (std::initializer_list<DType> l) {
+        if (dptr != nullptr) {
+            std::free(dptr);
+        }
+        shape = {l.size()};
+        dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
+        std::copy(l.begin(), l.end(), dptr);
         return *this;
     }
 
@@ -154,6 +186,12 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     void Reshape(const Shape<>& src) {
         assert(shape.Size() == src.Size());
         shape = src;
+    }
+
+    template <typename T>
+    void ReshapeLike(const Tensor<T>& other) {
+        assert(shape.Size() == other.shape.Size());
+        shape = other.shape;
     }
 
     friend std::ostream& operator << (std::ostream& os, const Tensor& other) {
