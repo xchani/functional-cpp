@@ -11,10 +11,10 @@ void test_Shape() {
     Shape s1(2, 3, 4);
     CHECK_EQ(s1.Size(), 24);
 
-    Shape<> s2;
+    Shape s2;
     CHECK_EQ(s2.Size(), 0);
 
-    Shape<> s3{2, 3, 4};
+    Shape s3{2, 3, 4};
     CHECK_EQ(s3.Size(), 24);
 
     CHECK_EQ(s1[0], 2);
@@ -25,7 +25,7 @@ void test_Shape() {
 
     // assign with initializer_list will not change data type
     s3 = {3, 4, 5};
-    CHECK_EQ(s3, Shape<>({3, 4, 5}));
+    CHECK_EQ(s3, Shape({3, 4, 5}));
 
     CHECK_EQ(s2.Dims(), 0);
     CHECK_EQ(s3.Dims(), 3);
@@ -45,8 +45,8 @@ void test_Tensor() {
     Shape s(2, 3);
     Tensor<int> a(s), b({1,2,3,4,5,6});
 
-    CHECK_EQ(a.Shape_(), Shape<>(2, 3));
-    CHECK_EQ(b.Shape_(), Shape<>(6));
+    CHECK_EQ(a.Shape_(), Shape(2, 3));
+    CHECK_EQ(b.Shape_(), Shape(6));
 
     Tensor<int> b_copy(b);
     Tensor<int> b_move(std::move(b));
@@ -58,8 +58,8 @@ void test_Tensor() {
 
     b.Reshape(s);
     CHECK_EQ(b.Shape_(), s);
-    b.Reshape(Shape<>(6));
-    CHECK_EQ(b.Shape_(), Shape<>(6));
+    b.Reshape(Shape(6));
+    CHECK_EQ(b.Shape_(), Shape(6));
     b.ReshapeLike(b_move);
     CHECK_EQ(b.Shape_(), b_move.Shape_());
 }

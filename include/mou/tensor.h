@@ -15,22 +15,21 @@ namespace mou {
 
 namespace tensor {
 
-// TODO(Chenxia Han): Deduce template argument in function prototype
-template <typename DType = size_t>
-class Shape {
+template <typename DType>
+class ShapeBase {
  public:
     template <typename... T>
-    explicit Shape(T ...args) {
+    explicit ShapeBase(T ...args) {
         shape = {static_cast<DType>(args)...};
         len = (... * static_cast<DType>(args));
     }
 
-    explicit Shape() {
+    explicit ShapeBase() {
         shape = {};
         len = 0;
     }
 
-    Shape(std::initializer_list<DType> l) {
+    ShapeBase(std::initializer_list<DType> l) {
         shape = l;
         len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
     }
@@ -40,11 +39,11 @@ class Shape {
         return shape.at(i);
     }
 
-    bool operator == (const Shape& other) const {
+    bool operator == (const ShapeBase& other) const {
         return shape == other.shape;
     }
 
-    Shape& operator = (std::initializer_list<DType> l) {
+    ShapeBase& operator = (std::initializer_list<DType> l) {
         shape = l;
         len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
         return *this;
@@ -71,7 +70,7 @@ class Shape {
         return sz;
     }
 
-    friend std::ostream& operator << (std::ostream& os, const Shape<>& other) {
+    friend std::ostream& operator << (std::ostream& os, const ShapeBase& other) {
         os << '(';
         for (size_t i = 0; i < other.shape.size(); ++i) {
             os << other.shape.at(i) << ",)"[i==other.shape.size()-1];
@@ -84,10 +83,12 @@ class Shape {
     DType len;
 };
 
+using Shape = ShapeBase<size_t>;
+
 template <typename DType>
 class Tensor : public expr::Exp<Tensor<DType> > {
  public:
-    explicit Tensor(Shape<> shape) : shape(shape) {
+    explicit Tensor(Shape shape) : shape(shape) {
         // TODO(Chenxia Han): Try to dismiss raw pointer
         dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
     }
@@ -179,11 +180,11 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         return dptr[i];
     }
 
-    inline Shape<> Shape_() const {
+    inline Shape Shape_() const {
         return shape;
     }
 
-    void Reshape(const Shape<>& src) {
+    void Reshape(const Shape& src) {
         assert(shape.Size() == src.Size());
         shape = src;
     }
@@ -205,7 +206,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
 
  private:
     DType *dptr;
-    Shape<> shape;
+    Shape shape;
     using type = DType;
 };
 
