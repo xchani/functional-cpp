@@ -6,6 +6,7 @@
 #include <cstring>
 #include <functional>
 #include <initializer_list>
+#include <memory>
 #include <numeric>
 #include <ostream>
 #include <utility>
@@ -83,81 +84,67 @@ class ShapeBase {
 
 using Shape = ShapeBase<size_t>;
 
-template <typename DType>
+template <typename DType, typename Allocator = std::allocator<DType> >
 class Tensor : public expr::Exp<Tensor<DType> > {
  public:
     explicit Tensor(Shape shape) : shape(shape) {
-        // TODO(Chenxia Han): Try to dismiss raw pointer
-        dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
+        dptr = _M_allocate(shape.Size());
     }
 
     // TODO(Chenxia Han): Constructor with nested initializer_list
     Tensor(std::initializer_list<DType> l) {
         shape = {l.size()};
-        dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
-        std::copy(l.begin(), l.end(), dptr);
+        dptr = _M_allocate_and_copy(l.begin(), l.end());
     }
 
     ~Tensor() {
-        if (dptr != nullptr) {
-            std::free(dptr);
-        }
+        _M_deallocate(dptr, shape.Size());
     }
 
     // Copy Constructor
     Tensor(const Tensor& src) {
         shape = src.shape;
-
-        dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
-        std::memcpy(dptr, src.dptr, sizeof(DType) * shape.Size());
+        dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.shape.Size());
     }
 
     // Move Constructor
     Tensor(Tensor&& src) noexcept {
         shape = std::move(src.shape);
-
-        dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
-        dptr = src.dptr;
-        src.dptr = nullptr;
+        dptr = _M_allocate_on_move(src.dptr);
     }
 
     // Copy Assignment
     Tensor& operator = (const Tensor& src) {
         // TODO(Chenxia Han): Check shape in compile time
         if (shape == src.shape) {
-            shape = src.shape;
+            std::copy(src.dptr, src.dptr + src.shape.Size(), dptr);
         } else {
+            _M_deallocate(dptr, shape.Size());
             shape = src.shape;
-            if (dptr != nullptr) {
-                std::free(dptr);
-            }
-            dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
+            dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.shape.Size());
         }
-        std::memcpy(dptr, src.dptr, sizeof(DType) * shape.Size());
 
         return *this;
     }
 
     // Move Assignment
     Tensor& operator = (Tensor&& src) noexcept {
-        if (dptr != nullptr) {
-            std::free(dptr);
-        }
+        _M_deallocate(dptr, shape.Size());
         shape = std::move(src.shape);
-
-        dptr = src.dptr;
-        src.dptr = nullptr;
+        dptr = _M_allocate_on_move(src.dptr);
 
         return *this;
     }
 
     Tensor& operator = (std::initializer_list<DType> l) {
-        if (dptr != nullptr) {
-            std::free(dptr);
+        if (shape == Shape(l.size())) {
+            std::copy(l.begin(), l.end(), dptr);
+        } else {
+            _M_deallocate(dptr, shape.Size());
+            shape = {l.size()};
+            dptr = _M_allocate_and_copy(l.begin(), l.end());
         }
-        shape = {l.size()};
-        dptr = static_cast<DType*>(std::malloc(sizeof(DType) * shape.Size()));
-        std::copy(l.begin(), l.end(), dptr);
+
         return *this;
     }
 
@@ -210,9 +197,49 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     }
 
  private:
-    DType *dptr;
+    using pointer = typename std::allocator_traits<Allocator>::pointer;
+
+    pointer dptr;
+    Allocator alloc;
     Shape shape;
+
+ public:
     using type = DType;
+
+ private:
+    pointer _M_allocate(size_t n) {
+        using alloc_traits = std::allocator_traits<Allocator>;
+        return n != 0 ? alloc_traits::allocate(alloc, n) : pointer();
+    }
+
+    void _M_deallocate(pointer p, size_t n) {
+        using alloc_traits = std::allocator_traits<Allocator>;
+        if (p) {
+            alloc_traits::deallocate(alloc, p, n);
+        }
+    }
+
+    template <typename ForwardIterator>
+    pointer _M_allocate_and_copy(ForwardIterator first,
+            ForwardIterator last) {
+        auto n = last - first;
+        pointer result = _M_allocate(n);
+        try {
+            std::uninitialized_copy(first, last, result);
+            return result;
+        } catch(...) {
+            _M_deallocate(result, n);
+            std::exception_ptr eptr = std::current_exception();
+            std::rethrow_exception(eptr);
+        }
+    }
+
+    template <typename ForwardIterator>
+    pointer _M_allocate_on_move(ForwardIterator& first) {
+        pointer result = first;
+        first = nullptr;
+        return result;
+    }
 };
 
 }; // namespace tensor
