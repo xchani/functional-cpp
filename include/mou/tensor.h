@@ -189,6 +189,13 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         shape = src;
     }
 
+    template <typename... T>
+    void Reshape(T ...args) {
+        Shape src = Shape(args...);
+        assert(shape.Size() == src.Size());
+        shape = src;
+    }
+
     template <typename T>
     void ReshapeLike(const Tensor<T>& other) {
         assert(shape.Size() == other.shape.Size());
