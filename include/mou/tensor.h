@@ -101,19 +101,16 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         _M_deallocate(dptr, shape.Size());
     }
 
-    // Copy Constructor
     Tensor(const Tensor& src) {
         shape = src.shape;
         dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.shape.Size());
     }
 
-    // Move Constructor
     Tensor(Tensor&& src) noexcept {
         shape = std::move(src.shape);
         dptr = _M_allocate_on_move(src.dptr);
     }
 
-    // Copy Assignment
     Tensor& operator = (const Tensor& src) {
         // TODO(Chenxia Han): Check shape in compile time
         if (shape == src.shape) {
@@ -127,7 +124,6 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         return *this;
     }
 
-    // Move Assignment
     Tensor& operator = (Tensor&& src) noexcept {
         _M_deallocate(dptr, shape.Size());
         shape = std::move(src.shape);
