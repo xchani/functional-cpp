@@ -71,8 +71,11 @@ class ShapeBase {
 
     friend std::ostream& operator << (std::ostream& os, const ShapeBase& other) {
         os << '(';
-        for (size_t i = 0; i < other.shape.size(); ++i) {
-            os << other.shape.at(i) << ",)"[i==other.shape.size()-1];
+        for (size_t i = 0; i < other.Dims(); ++i) {
+            os << other.Size(i) << ",)"[i==other.Dims()-1];
+        }
+        if (other.Dims() == 0) {
+            os << ')';
         }
         return os;
     }
@@ -87,8 +90,8 @@ using Shape = ShapeBase<size_t>;
 template <typename DType, typename Allocator = std::allocator<DType> >
 class Tensor : public expr::Exp<Tensor<DType> > {
  public:
-    explicit Tensor(const Shape& shape) : shape(shape) {
-        dptr = _M_allocate(shape.Size());
+    explicit Tensor(const Shape& _shape) : shape(_shape) {
+        dptr = _M_allocate(this->Size());
     }
 
     // TODO(Chenxia Han): Constructor with nested initializer_list
@@ -98,12 +101,12 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     }
 
     ~Tensor() {
-        _M_deallocate(dptr, shape.Size());
+        _M_deallocate(dptr, this->Size());
     }
 
     Tensor(const Tensor& src) {
         shape = src.shape;
-        dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.shape.Size());
+        dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.Size());
     }
 
     Tensor(Tensor&& src) noexcept {
@@ -113,18 +116,18 @@ class Tensor : public expr::Exp<Tensor<DType> > {
 
     Tensor& operator = (const Tensor& src) {
         if (shape == src.shape) {
-            std::copy(src.dptr, src.dptr + src.shape.Size(), dptr);
+            std::copy(src.dptr, src.dptr + src.Size(), dptr);
         } else {
-            _M_deallocate(dptr, shape.Size());
+            _M_deallocate(dptr, this->Size());
             shape = src.shape;
-            dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.shape.Size());
+            dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.Size());
         }
 
         return *this;
     }
 
     Tensor& operator = (Tensor&& src) noexcept {
-        _M_deallocate(dptr, shape.Size());
+        _M_deallocate(dptr, this->Size());
         shape = std::move(src.shape);
         dptr = _M_allocate_on_move(src.dptr);
 
@@ -135,7 +138,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         if (shape == Shape(l.size())) {
             std::copy(l.begin(), l.end(), dptr);
         } else {
-            _M_deallocate(dptr, shape.Size());
+            _M_deallocate(dptr, this->Size());
             shape = {l.size()};
             dptr = _M_allocate_and_copy(l.begin(), l.end());
         }
@@ -150,7 +153,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     template <typename EType>
     inline Tensor& operator = (const expr::Exp<EType> &src) {
         const EType &src_ = src.self();
-        for (int i = 0; i < shape.Size(); ++i) {
+        for (int i = 0; i < this->Size(); ++i) {
             dptr[i] = src_.Eval(i);
         }
         return *this;
@@ -164,29 +167,36 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         return shape;
     }
 
+    inline size_t Size() const {
+        return shape.Size();
+    }
+
     void Reshape(const Shape& src) {
-        assert(shape.Size() == src.Size());
+        assert(this->Size() == src.Size());
         shape = src;
     }
 
     template <typename... T>
     void Reshape(T ...args) {
         Shape src = Shape(args...);
-        assert(shape.Size() == src.Size());
+        assert(this->Size() == src.Size());
         shape = src;
     }
 
     template <typename T>
     void ReshapeLike(const Tensor<T>& other) {
-        assert(shape.Size() == other.shape.Size());
+        assert(this->Size() == other.Size());
         shape = other.shape;
     }
 
     friend std::ostream& operator << (std::ostream& os, const Tensor& other) {
         // TODO(Chenxia Han): Format output via dimensions
         os << '[';
-        for (size_t i = 0; i < other.shape.Size(); ++i) {
-            os << other[i] << ",]"[i==other.shape.Size()-1];
+        for (size_t i = 0; i < other.Size(); ++i) {
+            os << other[i] << ",]"[i==other.Size()-1];
+        }
+        if (other.Size() == 0) {
+            os << ']';
         }
         return os;
     }
