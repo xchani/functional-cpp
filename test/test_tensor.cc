@@ -64,6 +64,9 @@ void test_Tensor() {
     CHECK_EQ(b.Shape_(), b_move.Shape_());
     b.Reshape(1, 6, 1);
     CHECK_EQ(b.Shape_(), Shape(1, 6, 1));
+
+    b[3] = -1;
+    CHECK_EQ(b[3], -1);
 }
 
 int main() {

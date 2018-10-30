@@ -144,7 +144,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         return *this;
     }
 
-    DType operator [] (size_t i) const {
+    DType& operator [] (size_t i) const {
         return dptr[i];
     }
 
