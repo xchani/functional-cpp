@@ -67,6 +67,9 @@ void test_Tensor() {
 
     b[3] = -1;
     CHECK_EQ(b[3], -1);
+
+    b = b * 3;
+    CHECK_EQ(b[2], 12);
 }
 
 int main() {
