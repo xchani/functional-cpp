@@ -73,6 +73,8 @@ void test_Tensor() {
 
     Tensor<int> c(Shape(3));
     CHECK_EQ(c.Shape_(), Shape(3));
+    c = b;
+    CHECK_EQ(c.Shape_(), b.Shape_());
 }
 
 int main() {
