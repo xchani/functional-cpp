@@ -34,7 +34,6 @@ class ShapeBase {
         len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
     }
 
-    // TODO(Chenxia Han): Update len after modifying shape
     DType operator [] (size_t i) const {
         return shape.at(i);
     }
@@ -54,7 +53,6 @@ class ShapeBase {
     }
 
     inline DType Size() const {
-        //len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
         return len;
     }
 
