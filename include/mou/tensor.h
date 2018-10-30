@@ -90,7 +90,7 @@ using Shape = ShapeBase<size_t>;
 template <typename DType, typename Allocator = std::allocator<DType> >
 class Tensor : public expr::Exp<Tensor<DType> > {
  public:
-    explicit Tensor(const Shape& _shape) : shape(_shape) {
+    explicit Tensor(Shape _shape) : shape(std::move(_shape)) {
         dptr = _M_allocate(this->Size());
     }
 
