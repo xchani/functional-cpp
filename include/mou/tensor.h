@@ -112,7 +112,6 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     }
 
     Tensor& operator = (const Tensor& src) {
-        // TODO(Chenxia Han): Check shape in compile time
         if (shape == src.shape) {
             std::copy(src.dptr, src.dptr + src.shape.Size(), dptr);
         } else {
