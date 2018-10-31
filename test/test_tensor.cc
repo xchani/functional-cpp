@@ -80,6 +80,12 @@ void test_Tensor() {
     CHECK_EQ(c.Slice(1, 3).Shape_(), Shape(2, 2));
     CHECK_EQ(c.SliceFrom(1).Shape_(), Shape(2, 2));
     CHECK_EQ(c.SliceTo(2).Shape_(), Shape(2, 2));
+
+    int sum = 0;
+    for (size_t i = 0; i < c.Size(); ++i) {
+        sum += c[i] * c[i];
+    }
+    CHECK_EQ(Dot(c, c), sum);
 }
 
 int main() {

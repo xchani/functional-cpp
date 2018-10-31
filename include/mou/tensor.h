@@ -259,6 +259,15 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         return os;
     }
 
+    friend DType Dot(const Tensor& a, const Tensor& b) {
+        assert(a.Size() == b.Size());
+        DType sum = 0;
+        for (size_t i = 0; i < a.Size(); ++i) {
+            sum += a[i] * b[i];
+        }
+        return sum;
+    }
+
  private:
     pointer _M_allocate(size_t n) {
         using alloc_traits = std::allocator_traits<Allocator>;

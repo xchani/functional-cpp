@@ -18,7 +18,7 @@ Library for C++ 17 containing funtional features and so on.
 - [ ] Tensor
     - [x] Basic Tensor
     - [x] Slicing
-    - [ ] Dot Product
+    - [x] Dot Product
     - [ ] GEMM
     - [ ] SIMD using instrinsics for Dot Product
     - [ ] SIMD using instrinsics for GEMM
