@@ -75,6 +75,11 @@ void test_Tensor() {
     CHECK_EQ(c.Shape_(), Shape(3));
     c = b;
     CHECK_EQ(c.Shape_(), b.Shape_());
+
+    c.Reshape(3, 2);
+    CHECK_EQ(c.Slice(1, 3).Shape_(), Shape(2, 2));
+    CHECK_EQ(c.SliceFrom(1).Shape_(), Shape(2, 2));
+    CHECK_EQ(c.SliceTo(2).Shape_(), Shape(2, 2));
 }
 
 int main() {

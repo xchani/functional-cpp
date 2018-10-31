@@ -9,6 +9,7 @@
 #include <memory>
 #include <numeric>
 #include <ostream>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -32,6 +33,11 @@ class ShapeBase {
 
     ShapeBase(std::initializer_list<DType> l) {
         shape = l;
+        len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
+    }
+
+    explicit ShapeBase(std::vector<size_t> src) {
+        shape = src;
         len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
     }
 
@@ -69,6 +75,14 @@ class ShapeBase {
         return sz;
     }
 
+    inline DType SizeFrom(size_t start) const {
+        return this->Size(start, this->Dims());
+    }
+
+    inline DType SizeTo(size_t end) const {
+        return this->Size(0, end);
+    }
+
     friend std::ostream& operator << (std::ostream& os, const ShapeBase& other) {
         os << '(';
         for (size_t i = 0; i < other.Dims(); ++i) {
@@ -90,6 +104,16 @@ using Shape = ShapeBase<size_t>;
 template <typename DType, typename Allocator = std::allocator<DType> >
 class Tensor : public expr::Exp<Tensor<DType> > {
  public:
+    using type = DType;
+
+ private:
+    using pointer = typename std::allocator_traits<Allocator>::pointer;
+
+    pointer dptr;
+    Allocator alloc;
+    Shape shape;
+
+ public:
     explicit Tensor(Shape _shape) : shape(std::move(_shape)) {
         dptr = _M_allocate(this->Size());
     }
@@ -98,6 +122,12 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     Tensor(std::initializer_list<DType> l) {
         shape = {l.size()};
         dptr = _M_allocate_and_copy(l.begin(), l.end());
+    }
+
+    explicit Tensor(pointer first, pointer last, Shape _shape)
+        : shape(std::move(_shape)) {
+        assert(last-first == _shape.Size());
+        dptr = _M_allocate_and_copy(first, last);
     }
 
     ~Tensor() {
@@ -189,6 +219,28 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         shape = other.shape;
     }
 
+    Tensor Slice(size_t begin, size_t end) const {
+        size_t slice_len = end - begin;
+        assert(slice_len > 0 && begin >= 0);
+
+        auto n = shape.SizeFrom(1);
+        std::vector<size_t> slice_shape;
+        slice_shape.push_back(slice_len);
+        for (int i = 1; i < shape.Dims(); ++i) {
+            slice_shape.push_back(shape[i]);
+        }
+
+        return Tensor(dptr + begin * n, dptr + end * n, Shape(slice_shape));
+    }
+
+    inline Tensor SliceFrom(size_t begin) const {
+        return this->Slice(begin, this->shape[0]);
+    }
+
+    inline Tensor SliceTo(size_t end) const {
+        return this->Slice(0, end);
+    }
+
     friend std::ostream& operator << (std::ostream& os, const Tensor& other) {
         // TODO(Chenxia Han): Format output via dimensions
         os << '[';
@@ -200,16 +252,6 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         }
         return os;
     }
-
- private:
-    using pointer = typename std::allocator_traits<Allocator>::pointer;
-
-    pointer dptr;
-    Allocator alloc;
-    Shape shape;
-
- public:
-    using type = DType;
 
  private:
     pointer _M_allocate(size_t n) {
