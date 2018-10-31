@@ -33,12 +33,12 @@ class ShapeBase {
 
     ShapeBase(std::initializer_list<DType> l) {
         shape = l;
-        len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
+        len =  _get_shape_length(shape);
     }
 
     explicit ShapeBase(std::vector<size_t> src) {
         shape = src;
-        len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
+        len =  _get_shape_length(shape);
     }
 
     DType operator [] (size_t i) const {
@@ -51,7 +51,7 @@ class ShapeBase {
 
     ShapeBase& operator = (std::initializer_list<DType> l) {
         shape = l;
-        len = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
+        len =  _get_shape_length(shape);
         return *this;
     }
 
@@ -92,6 +92,12 @@ class ShapeBase {
             os << ')';
         }
         return os;
+    }
+
+ private:
+    inline DType _get_shape_length(std::vector<DType> _shape) const {
+        return std::accumulate(_shape.begin(), _shape.end(),
+                               1, std::multiplies<>());
     }
 
  private:
