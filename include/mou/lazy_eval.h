@@ -210,42 +210,42 @@ struct axpy {
 /*
  * Wrapper macro for Binary Operator
  */
-#define DECLARE_BINARY_OP_SYM(OP_NAME, OP_SYM) \
-    template <typename Tlhs, typename Trhs> \
-    inline BinaryMapExp< \
-        OP_NAME<typename Tlhs::type, typename Trhs::type>, \
-        Tlhs, \
-        Trhs> \
-    operator OP_SYM (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) { \
-        return F<OP_NAME>(lhs, rhs); \
+#define DECLARE_BINARY_OP_SYM(OP_NAME, OP_SYM)                              \
+    template <typename Tlhs, typename Trhs>                                 \
+    inline BinaryMapExp<                                                    \
+        OP_NAME<typename Tlhs::type, typename Trhs::type>,                  \
+        Tlhs,                                                               \
+        Trhs>                                                               \
+    operator OP_SYM (const Exp<Tlhs> &lhs, const Exp<Trhs> &rhs) {          \
+        return F<OP_NAME>(lhs, rhs);                                        \
     }
 
-#define DECLARE_BINARY_OP_SYM_WITH_SCALAR_LEFT(OP_NAME, OP_SYM) \
-    template < \
-        typename Tlhs, \
-        typename Trhs, \
-        bool T = std::is_scalar_v<Tlhs>, \
-        typename std::enable_if_t<T, Tlhs>* helper = nullptr> \
-    inline BinaryMapExp< \
-        OP_NAME<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>, \
-        ScalarMapExp<Tlhs>, Trhs> \
-    operator OP_SYM (const Tlhs &lhs, const Exp<Trhs> &rhs) { \
-        static auto expr = ScalarMapExp<Tlhs>(lhs); \
-        return F<OP_NAME>(expr, rhs); \
+#define DECLARE_BINARY_OP_SYM_WITH_SCALAR_LEFT(OP_NAME, OP_SYM)             \
+    template <                                                              \
+        typename Tlhs,                                                      \
+        typename Trhs,                                                      \
+        bool T = std::is_scalar_v<Tlhs>,                                    \
+        typename std::enable_if_t<T, Tlhs>* helper = nullptr>               \
+    inline BinaryMapExp<                                                    \
+        OP_NAME<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,    \
+        ScalarMapExp<Tlhs>, Trhs>                                           \
+    operator OP_SYM (const Tlhs &lhs, const Exp<Trhs> &rhs) {               \
+        static auto expr = ScalarMapExp<Tlhs>(lhs);                         \
+        return F<OP_NAME>(expr, rhs);                                       \
     }
 
-#define DECLARE_BINARY_OP_SYM_WITH_SCALAR_RIGHT(OP_NAME, OP_SYM) \
-    template < \
-        typename Tlhs, \
-        typename Trhs, \
-        bool T = std::is_scalar_v<Trhs>, \
-        typename std::enable_if_t<T, Trhs>* helper = nullptr> \
-    inline BinaryMapExp< \
-        OP_NAME<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>, \
-        Tlhs, ScalarMapExp<Trhs> > \
-    operator OP_SYM (const Exp<Tlhs> &lhs, const Trhs &rhs) { \
-        static auto expr = ScalarMapExp<Trhs>(rhs); \
-        return F<OP_NAME>(lhs, expr); \
+#define DECLARE_BINARY_OP_SYM_WITH_SCALAR_RIGHT(OP_NAME, OP_SYM)            \
+    template <                                                              \
+        typename Tlhs,                                                      \
+        typename Trhs,                                                      \
+        bool T = std::is_scalar_v<Trhs>,                                    \
+        typename std::enable_if_t<T, Trhs>* helper = nullptr>               \
+    inline BinaryMapExp<                                                    \
+        OP_NAME<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,    \
+        Tlhs, ScalarMapExp<Trhs> >                                          \
+    operator OP_SYM (const Exp<Tlhs> &lhs, const Trhs &rhs) {               \
+        static auto expr = ScalarMapExp<Trhs>(rhs);                         \
+        return F<OP_NAME>(lhs, expr);                                       \
     }
 
 /*
