@@ -86,6 +86,9 @@ void test_Tensor() {
         sum += c[i] * c[i];
     }
     CHECK_EQ(Dot(c, c), sum);
+
+    c = -1;
+    CHECK_EQ(c[0], -1);
 }
 
 int main() {

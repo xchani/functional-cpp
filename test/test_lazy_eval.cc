@@ -53,5 +53,12 @@ int main() {
                i, D.dptr[i], A.dptr[i], B.dptr[i], C.dptr[i]);
     }
 
+    // test for scalar assign
+    D = -1;
+
+    for (int i = 0; i < n; ++i) {
+        printf("%d:%d == %d\n", i, D.dptr[i], -1);
+    }
+
     return 0;
 }

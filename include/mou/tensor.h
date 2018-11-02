@@ -195,6 +195,16 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         return *this;
     }
 
+    template <
+        typename EType,
+        bool T = std::is_scalar_v<EType>,
+        typename std::enable_if_t<T>* helper = nullptr>
+    inline Tensor& operator = (const EType &src) {
+        static auto expr = expr::ScalarMapExp<EType>(src);
+        (*this) = expr;
+        return *this;
+    }
+
     inline DType Eval(int i) const {
         return dptr[i];
     }

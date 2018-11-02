@@ -104,6 +104,16 @@ struct Vec : public Exp<Vec<DType> > {
         return *this;
     }
 
+    template <
+        typename EType,
+        bool T = std::is_scalar_v<EType>,
+        typename std::enable_if_t<T>* helper = nullptr>
+    inline Vec& operator = (const EType &src) {
+        static auto expr = ScalarMapExp<EType>(src);                         \
+        (*this) = expr;
+        return *this;
+    }
+
     inline DType Eval(int i) const {
         return dptr[i];
     }
