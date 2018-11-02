@@ -200,7 +200,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         bool T = std::is_scalar_v<EType>,
         typename std::enable_if_t<T>* helper = nullptr>
     inline Tensor& operator = (const EType &src) {
-        static auto expr = expr::ScalarMapExp<EType>(src);
+        auto expr = expr::ScalarMapExp<EType>(src);
         (*this) = expr;
         return *this;
     }

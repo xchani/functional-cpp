@@ -109,7 +109,7 @@ struct Vec : public Exp<Vec<DType> > {
         bool T = std::is_scalar_v<EType>,
         typename std::enable_if_t<T>* helper = nullptr>
     inline Vec& operator = (const EType &src) {
-        static auto expr = ScalarMapExp<EType>(src);                         \
+        auto expr = ScalarMapExp<EType>(src);
         (*this) = expr;
         return *this;
     }
