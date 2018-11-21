@@ -234,8 +234,7 @@ struct axpy {
     template <                                                              \
         typename Tlhs,                                                      \
         typename Trhs,                                                      \
-        bool T = std::is_scalar_v<Tlhs>,                                    \
-        typename std::enable_if_t<T, Tlhs>* helper = nullptr>               \
+        typename = typename std::enable_if_t<std::is_scalar_v<Tlhs>, Tlhs>> \
     inline BinaryMapExp<                                                    \
         OP_NAME<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,    \
         ScalarMapExp<Tlhs>, Trhs>                                           \
@@ -248,8 +247,7 @@ struct axpy {
     template <                                                              \
         typename Tlhs,                                                      \
         typename Trhs,                                                      \
-        bool T = std::is_scalar_v<Trhs>,                                    \
-        typename std::enable_if_t<T, Trhs>* helper = nullptr>               \
+        typename = typename std::enable_if_t<std::is_scalar_v<Trhs>, Trhs>> \
     inline BinaryMapExp<                                                    \
         OP_NAME<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,    \
         Tlhs, ScalarMapExp<Trhs> >                                          \
