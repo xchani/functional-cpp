@@ -1,7 +1,7 @@
 #ifndef MOU_TENSOR_H
 #define MOU_TENSOR_H
 
-#include "lazy_eval.h"
+#include "expression.h"
 #include <cassert>
 #include <cstring>
 #include <functional>

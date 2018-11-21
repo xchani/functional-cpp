@@ -1,5 +1,5 @@
-#ifndef MOU_LAZY_EVAL_H
-#define MOU_LAZY_EVAL_H
+#ifndef MOU_EXPRESSION_H
+#define MOU_EXPRESSION_H
 
 /*
  * \brief: refer to github.com/dmlc/mshadow
@@ -34,7 +34,7 @@ struct ScalarMapExp : public Exp<ScalarMapExp<Ths> > {
 
     explicit ScalarMapExp(const Ths &hs)
         : hs(hs) {}
-    inline auto Eval(int  /*i*/) const {
+    inline auto Eval(int /*i*/) const {
         return hs;
     }
 };
@@ -300,4 +300,4 @@ DECLARE_BINARY_OP_SYM_WITH_SCALAR_RIGHT(mod, %)
 
 } // namespace mou
 
-#endif // MOU_LAZY_EVAL_H
+#endif // MOU_EXPRESSION_H
