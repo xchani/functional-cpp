@@ -106,8 +106,7 @@ struct Vec : public Exp<Vec<DType> > {
 
     template <
         typename EType,
-        bool T = std::is_scalar_v<EType>,
-        typename std::enable_if_t<T>* helper = nullptr>
+        typename = typename std::enable_if_t<std::is_scalar_v<EType>>>
     inline Vec& operator = (const EType &src) {
         auto expr = ScalarMapExp<EType>(src);
         (*this) = expr;
@@ -151,74 +150,40 @@ F(const Exp<Tlhs> &lhs, const Exp<Tchs> &chs, const Exp<Trhs> &rhs) {
 }
 
 /*
- * Unary Operator
- * - identity
+ * Wrapper macro for Unary Operator
  */
-template <typename Ths>
-struct identity {
-    inline static auto Map(Ths a) {
-        return a;
-    }
-};
-
-/*
- * Binary Operator
- * - plus
- * - minus
- * - mul
- * - div
- * - mod
- */
-
-template <typename Tlhs, typename Trhs>
-struct plus {
-    inline static auto Map(Tlhs a, Trhs b) {
-        return a + b;
-    }
-};
-
-template <typename Tlhs, typename Trhs>
-struct minus {
-    inline static auto Map(Tlhs a, Trhs b) {
-        return a - b;
-    }
-};
-
-template <typename Tlhs, typename Trhs>
-struct mul {
-    inline static auto Map(Tlhs a, Trhs b) {
-        return a * b;
-    }
-};
-
-template <typename Tlhs, typename Trhs>
-struct div {
-    inline static auto Map(Tlhs a, Trhs b) {
-        return a / b;
-    }
-};
-
-template <typename Tlhs, typename Trhs>
-struct mod {
-    inline static auto Map(Tlhs a, Trhs b) {
-        return a % b;
-    }
-};
-
-/*
- * Ternary Operator
- * - axpy
- */
-
-template <typename Tlhs, typename Tchs, typename Trhs>
-struct axpy {
-    inline static auto Map(Tlhs a, Tchs x, Trhs y) {
-        return a * x + y;
-    }
-};
+#define DECLARE_UNARY_OP(OP_NAME, OP_EXP)                                   \
+    template <typename Ths>                                                 \
+    struct OP_NAME {                                                        \
+        inline static auto Map(Ths a) {                                     \
+            return OP_EXP;                                                  \
+        }                                                                   \
+    };
 
 /*
  * Wrapper macro for Binary Operator
+ */
+#define DECLARE_BINARY_OP(OP_NAME, OP_EXP)                                  \
+    template <typename Tlhs, typename Trhs>                                 \
+    struct OP_NAME {                                                        \
+        inline static auto Map(Tlhs a, Trhs b) {                            \
+            return OP_EXP;                                                  \
+        }                                                                   \
+    };
+
+/*
+ * Wrapper macro for Ternary Operator
+ */
+#define DECLARE_TERNARY_OP(OP_NAME, OP_EXP)                                 \
+    template <typename Tlhs, typename Tchs, typename Trhs>                  \
+    struct OP_NAME {                                                        \
+        inline static auto Map(Tlhs a, Tchs b, Trhs c) {                    \
+            return OP_EXP;                                                  \
+        }                                                                   \
+    };
+
+/*
+ * Wrapper macro for Binary Operator Symbol
  */
 #define DECLARE_BINARY_OP_SYM(OP_NAME, OP_SYM)                              \
     template <typename Tlhs, typename Trhs>                                 \
@@ -234,7 +199,7 @@ struct axpy {
     template <                                                              \
         typename Tlhs,                                                      \
         typename Trhs,                                                      \
-        typename = typename std::enable_if_t<std::is_scalar_v<Tlhs>, Tlhs>> \
+        typename = typename std::enable_if_t<std::is_scalar_v<Tlhs>>>       \
     inline BinaryMapExp<                                                    \
         OP_NAME<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,    \
         ScalarMapExp<Tlhs>, Trhs>                                           \
@@ -247,7 +212,7 @@ struct axpy {
     template <                                                              \
         typename Tlhs,                                                      \
         typename Trhs,                                                      \
-        typename = typename std::enable_if_t<std::is_scalar_v<Trhs>, Trhs>> \
+        typename = typename std::enable_if_t<std::is_scalar_v<Trhs>>>       \
     inline BinaryMapExp<                                                    \
         OP_NAME<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,    \
         Tlhs, ScalarMapExp<Trhs> >                                          \
@@ -255,6 +220,38 @@ struct axpy {
         static auto expr = ScalarMapExp<Trhs>(rhs);                         \
         return F<OP_NAME>(lhs, expr);                                       \
     }
+
+/*
+ * Unary Operator
+ * - identity
+ */
+DECLARE_UNARY_OP(identity, a)
+
+DECLARE_UNARY_OP(negation, -a)
+
+/*
+ * Binary Operator
+ * - plus
+ * - minus
+ * - mul
+ * - div
+ * - mod
+ */
+DECLARE_BINARY_OP(plus, a + b)
+
+DECLARE_BINARY_OP(minus, a - b)
+
+DECLARE_BINARY_OP(mul, a * b)
+
+DECLARE_BINARY_OP(div, a / b)
+
+DECLARE_BINARY_OP(mod, a % b)
+
+/*
+ * Ternary Operator
+ * - axpy
+ */
+DECLARE_TERNARY_OP(axpy, a * b + c)
 
 /*
  * Wrapper for Binary Operator plus
