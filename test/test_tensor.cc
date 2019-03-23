@@ -110,6 +110,13 @@ void test_Tensor_format() {
     d[0] = 1.123456789;
     d[2] = 123456789;
     std::cout << d << std::endl;
+
+    Tensor<int> e(Shape(2, 2));
+    e = -1;
+    std::cout << e << std::endl;
+
+    e = 0;
+    std::cout << e << std::endl;
 }
 
 int main() {

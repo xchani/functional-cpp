@@ -2,6 +2,7 @@
 #define MOU_TENSOR_H
 
 #include "expression.h"
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -283,11 +284,14 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         // count width for each element in tensor
         size_t width = 0;
         for (size_t i = 0; i < other.Size(); ++i) {
-            if (other[i] <= 0) continue;
-            size_t int_width = std::log10(std::floor(other[i])) + 1;
+            auto int_num = std::floor(std::abs(other[i]));
+            int_num = std::max(int_num, static_cast<decltype(int_num)>(1));
+            size_t int_width = std::log10(int_num) + 1;
+            int_width += (other[i] < 0);
             width = std::max(width, int_width + 1);
         }
         if (std::is_floating_point_v<type>) {
+            // another one for decimal mark
             width += os.precision() + 1;
         }
 
@@ -336,6 +340,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         }
         // TODO(Chenxia Han): print device type and id
         os << ' ' << '@' << "cpu(0)" << '>';
+        os << std::endl;
 
         return os;
     }
