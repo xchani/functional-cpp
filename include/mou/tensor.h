@@ -3,9 +3,11 @@
 
 #include "expression.h"
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <functional>
 #include <initializer_list>
+#include <iomanip>
 #include <memory>
 #include <numeric>
 #include <ostream>
@@ -55,6 +57,22 @@ class ShapeBase {
         return *this;
     }
 
+    const auto begin() const noexcept {
+        return shape.begin();
+    }
+
+    const auto end() const noexcept {
+        return shape.end();
+    }
+
+    const auto rbegin() const noexcept {
+        return shape.rbegin();
+    }
+
+    const auto rend() const noexcept {
+        return shape.rend();
+    }
+
     inline DType Dims() const {
         return shape.size();
     }
@@ -86,11 +104,11 @@ class ShapeBase {
     friend std::ostream& operator << (std::ostream& os, const ShapeBase& other) {
         os << '(';
         for (size_t i = 0; i < other.Dims(); ++i) {
-            os << other.Size(i) << ",)"[i==other.Dims()-1];
+            if (i != 0) os << ',';
+            os << other.Size(i);
         }
-        if (other.Dims() == 0) {
-            os << ')';
-        }
+        if (other.Dims() == 1) os << ',';
+        os << ')';
         return os;
     }
 
@@ -258,14 +276,67 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     }
 
     friend std::ostream& operator << (std::ostream& os, const Tensor& other) {
-        // TODO(Chenxia Han): Format output via dimensions
-        os << '[';
+        const Shape& shape = other.Shape_();
+        std::vector<size_t> cumsum(shape.Dims());
+        std::partial_sum(shape.rbegin(), shape.rend(), cumsum.rbegin(), std::multiplies<>());
+
+        // count width for each element in tensor
+        size_t width = 0;
         for (size_t i = 0; i < other.Size(); ++i) {
-            os << other[i] << ",]"[i==other.Size()-1];
+            if (other[i] <= 0) continue;
+            size_t int_width = std::log10(std::floor(other[i])) + 1;
+            width = std::max(width, int_width + 1);
         }
-        if (other.Size() == 0) {
-            os << ']';
+        if (std::is_floating_point_v<type>) {
+            width += os.precision() + 1;
         }
+
+        for (size_t i = 0; i < other.Size(); ++i) {
+            bool begin_of_dim = false;
+            bool end_of_dim = false;
+            bool end_of_tensor = (i == other.Size() - 1);
+
+            // n left brackets if i % (D_(n-1) * D_(n-2) * ... * D_0) = 0
+            for (auto v : cumsum) {
+                if (i % v == 0) begin_of_dim = true;
+            }
+            if (begin_of_dim) {
+                for (auto v : cumsum) {
+                    if (i % v == 0) os << '[';
+                    else os << ' ';
+                }
+            }
+
+            os << std::setw(width) << other[i];
+
+            // n right brackets if i % (D_(n-1) * D_(n-2) * ... * D_0) = 0
+            for (auto v : cumsum) {
+                if (i % v == v - 1) {
+                    end_of_dim = true;
+                    os << ']';
+                }
+            }
+            if (!end_of_tensor) {
+                os << ',';
+                if (end_of_dim) os << '\n';
+            }
+        }
+
+        // special for empty tensor
+        if (other.Size() == 0) os << "[]";
+
+        os << '\n';
+
+        // print shape of tensor
+        // example: <NDArray 2x3x4 @cpu(0)>
+        os << '<' << "NDArray" << ' ';
+        for (size_t i = 0; i < shape.Dims(); ++i) {
+            if (i != 0) os << 'x';
+            os << shape[i];
+        }
+        // TODO(Chenxia Han): print device type and id
+        os << ' ' << '@' << "cpu(0)" << '>';
+
         return os;
     }
 

@@ -91,9 +91,31 @@ void test_Tensor() {
     CHECK_EQ(c[0], -1);
 }
 
+void test_Tensor_format() {
+    Tensor<int> a(Shape(2, 3, 4, 5));
+    for (size_t i = 0; i < a.Size(); ++i) {
+        a[i] = i;
+    }
+    std::cout << a << std::endl;
+
+    Tensor<int> b(Shape(1));
+    b[0] = -1;
+    std::cout << b << std::endl;
+
+    Tensor<int> c(Shape(0));
+    std::cout << c << std::endl;
+
+    Tensor<float> d(Shape(2, 3));
+    d = 0;
+    d[0] = 1.123456789;
+    d[2] = 123456789;
+    std::cout << d << std::endl;
+}
+
 int main() {
     test_Shape();
     test_Tensor();
+    test_Tensor_format();
 
     return 0;
 }
