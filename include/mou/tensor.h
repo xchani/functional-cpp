@@ -126,10 +126,24 @@ class ShapeBase {
 
 using Shape = ShapeBase<size_t>;
 
-template <typename DType, typename Allocator = std::allocator<DType> >
+enum device { cpu, gpu };
+
+std::ostream& operator << (std::ostream& os, device dev) {
+    switch (dev) {
+        case cpu    : os << "cpu"; break;
+        case gpu    : os << "gpu"; break;
+        default     : os.setstate(std::ios_base::failbit);
+    }
+    return os;
+}
+
+template <typename DType, int DevType=device::cpu, int DevId=0,
+          typename Allocator = std::allocator<DType> >
 class Tensor : public expr::Exp<Tensor<DType> > {
  public:
     using type = DType;
+    device dev = static_cast<device>(DevType);
+    int dev_id = DevId;
 
  private:
     using pointer = typename std::allocator_traits<Allocator>::pointer;
@@ -339,7 +353,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
             os << shape[i];
         }
         // TODO(Chenxia Han): print device type and id
-        os << ' ' << '@' << "cpu(0)" << '>';
+        os << ' ' << '@' << other.dev << '(' << other.dev_id << ')' << '>';
         os << std::endl;
 
         return os;
