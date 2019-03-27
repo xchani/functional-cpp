@@ -32,8 +32,14 @@ class gpu_allocator : public std::allocator<T> {
     }
 };
 
-//template <typename DType, int DevId>
-//class Tensor<DType, device::gpu, DevId, gpu_allocator<DType>>;
+template <typename InputIt, typename ForwardIt>
+struct uninit_copy<InputIt, ForwardIt, device::gpu> {
+    static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
+        size_t copy_bytes = (last-first) * sizeof(typename std::iterator_traits<InputIt>::value_type);
+        cudaMemcpy(d_first, first, copy_bytes, cudaMemcpyHostToDevice);
+        return d_first;
+    }
+};
 
 }; // namespace tensor
 

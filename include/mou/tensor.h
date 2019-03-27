@@ -137,6 +137,16 @@ std::ostream& operator << (std::ostream& os, device dev) {
     return os;
 }
 
+template <typename InputIt, typename ForwardIt, int Dev>
+struct uninit_copy;
+
+template <typename InputIt, typename ForwardIt>
+struct uninit_copy<InputIt, ForwardIt, device::cpu> {
+    static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
+        return std::uninitialized_copy(first, last, d_first);
+    }
+};
+
 template <typename DType, int DevType=device::cpu, int DevId=0,
           typename Allocator = std::allocator<DType> >
 class Tensor : public expr::Exp<Tensor<DType> > {
@@ -387,7 +397,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         auto n = last - first;
         pointer result = _M_allocate(n);
         try {
-            std::uninitialized_copy(first, last, result);
+            uninit_copy<ForwardIterator, pointer, DevType>::Copy(first, last, result);
             return result;
         } catch(...) {
             _M_deallocate(result, n);
