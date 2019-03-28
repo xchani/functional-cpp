@@ -253,10 +253,8 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         return *this;
     }
 
-    template <
-        typename EType,
-        bool T = std::is_scalar_v<EType>,
-        typename std::enable_if_t<T>* helper = nullptr>
+    template <typename EType,
+              typename = typename std::enable_if_t<std::is_scalar_v<EType>>>
     inline Tensor& operator = (const EType &src) {
         auto expr = expr::ScalarMapExp<EType>(src);
         (*this) = expr;
@@ -412,7 +410,8 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         auto n = last - first;
         pointer result = _M_allocate(n);
         try {
-            uninit_copy_to_dev<ForwardIterator, pointer, ForwardDevType, DevType>::Copy(first, last, result);
+            uninit_copy_to_dev<ForwardIterator, pointer, ForwardDevType, DevType>
+                ::Copy(first, last, result);
             return result;
         } catch(...) {
             _M_deallocate(result, n);
@@ -431,7 +430,8 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     template <int ForwardDevType, typename ForwardIterator>
     void _M_copy(ForwardIterator first,
             ForwardIterator last, pointer result) {
-        copy_to_dev<ForwardIterator, pointer, ForwardDevType, DevType>::Copy(first, last, result);
+        copy_to_dev<ForwardIterator, pointer, ForwardDevType, DevType>
+            ::Copy(first, last, result);
     }
 };
 

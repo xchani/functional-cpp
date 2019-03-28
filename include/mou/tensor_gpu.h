@@ -36,7 +36,8 @@ class gpu_allocator : public std::allocator<T> {
 template <typename InputIt, typename ForwardIt>
 struct uninit_copy_to_dev<InputIt, ForwardIt, device::cpu, device::gpu> {
     static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
-        size_t copy_bytes = (last-first) * sizeof(typename std::iterator_traits<InputIt>::value_type);
+        size_t copy_bytes = (last-first)
+            * sizeof(typename std::iterator_traits<InputIt>::value_type);
         cudaMemcpy(d_first, first, copy_bytes, cudaMemcpyHostToDevice);
         return d_first;
     }
@@ -46,7 +47,8 @@ struct uninit_copy_to_dev<InputIt, ForwardIt, device::cpu, device::gpu> {
 template <typename InputIt, typename ForwardIt>
 struct uninit_copy_to_dev<InputIt, ForwardIt, device::gpu, device::gpu> {
     static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
-        size_t copy_bytes = (last-first) * sizeof(typename std::iterator_traits<InputIt>::value_type);
+        size_t copy_bytes = (last-first)
+            * sizeof(typename std::iterator_traits<InputIt>::value_type);
         cudaMemcpy(d_first, first, copy_bytes, cudaMemcpyDeviceToDevice);
         return d_first;
     }
@@ -56,7 +58,8 @@ struct uninit_copy_to_dev<InputIt, ForwardIt, device::gpu, device::gpu> {
 template <typename InputIt, typename ForwardIt>
 struct copy_to_dev<InputIt, ForwardIt, device::cpu, device::gpu> {
     static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
-        size_t copy_bytes = (last-first) * sizeof(typename std::iterator_traits<InputIt>::value_type);
+        size_t copy_bytes = (last-first)
+            * sizeof(typename std::iterator_traits<InputIt>::value_type);
         cudaMemcpy(d_first, first, copy_bytes, cudaMemcpyHostToDevice);
         return d_first;
     }
@@ -66,7 +69,8 @@ struct copy_to_dev<InputIt, ForwardIt, device::cpu, device::gpu> {
 template <typename InputIt, typename ForwardIt>
 struct copy_to_dev<InputIt, ForwardIt, device::gpu, device::gpu> {
     static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
-        size_t copy_bytes = (last-first) * sizeof(typename std::iterator_traits<InputIt>::value_type);
+        size_t copy_bytes = (last-first)
+            * sizeof(typename std::iterator_traits<InputIt>::value_type);
         cudaMemcpy(d_first, first, copy_bytes, cudaMemcpyDeviceToDevice);
         return d_first;
     }

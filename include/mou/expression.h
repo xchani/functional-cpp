@@ -104,9 +104,8 @@ struct Vec : public Exp<Vec<DType> > {
         return *this;
     }
 
-    template <
-        typename EType,
-        typename = typename std::enable_if_t<std::is_scalar_v<EType>>>
+    template <typename EType,
+              typename = typename std::enable_if_t<std::is_scalar_v<EType>>>
     inline Vec& operator = (const EType &src) {
         auto expr = ScalarMapExp<EType>(src);
         (*this) = expr;
@@ -196,10 +195,8 @@ F(const Exp<Tlhs> &lhs, const Exp<Tchs> &chs, const Exp<Trhs> &rhs) {
     }
 
 #define DECLARE_BINARY_OP_SYM_WITH_SCALAR_LEFT(OP_NAME, OP_SYM)             \
-    template <                                                              \
-        typename Tlhs,                                                      \
-        typename Trhs,                                                      \
-        typename = typename std::enable_if_t<std::is_scalar_v<Tlhs>>>       \
+    template <typename Tlhs, typename Trhs,                                 \
+              typename = typename std::enable_if_t<std::is_scalar_v<Tlhs>>> \
     inline BinaryMapExp<                                                    \
         OP_NAME<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,    \
         ScalarMapExp<Tlhs>, Trhs>                                           \
@@ -209,10 +206,8 @@ F(const Exp<Tlhs> &lhs, const Exp<Tchs> &chs, const Exp<Trhs> &rhs) {
     }
 
 #define DECLARE_BINARY_OP_SYM_WITH_SCALAR_RIGHT(OP_NAME, OP_SYM)            \
-    template <                                                              \
-        typename Tlhs,                                                      \
-        typename Trhs,                                                      \
-        typename = typename std::enable_if_t<std::is_scalar_v<Trhs>>>       \
+    template <typename Tlhs, typename Trhs,                                 \
+              typename = typename std::enable_if_t<std::is_scalar_v<Trhs>>> \
     inline BinaryMapExp<                                                    \
         OP_NAME<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,    \
         Tlhs, ScalarMapExp<Trhs> >                                          \
