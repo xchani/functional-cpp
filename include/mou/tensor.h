@@ -147,6 +147,16 @@ struct uninit_copy_to_dev<InputIt, ForwardIt, device::cpu, device::cpu> {
     }
 };
 
+template <typename InputIt, typename ForwardIt, int InputDevType, int ForwardDevType>
+struct copy_to_dev;
+
+template <typename InputIt, typename ForwardIt>
+struct copy_to_dev<InputIt, ForwardIt, device::cpu, device::cpu> {
+    static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
+        return std::copy(first, last, d_first);
+    }
+};
+
 template <typename DType, int DevType=device::cpu, int DevId=0,
           typename Allocator = std::allocator<DType> >
 class Tensor : public expr::Exp<Tensor<DType> > {
@@ -199,7 +209,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     // only support tensor in the same device type
     Tensor& operator = (const Tensor& src) {
         if (shape == src.shape) {
-            std::copy(src.dptr, src.dptr + src.Size(), dptr);
+            _M_copy<DevType>(src.dptr, src.dptr + src.Size(), dptr);
         } else {
             _M_deallocate(dptr, this->Size());
             shape = src.shape;
@@ -219,7 +229,7 @@ class Tensor : public expr::Exp<Tensor<DType> > {
 
     Tensor& operator = (std::initializer_list<DType> l) {
         if (shape == Shape(l.size())) {
-            std::copy(l.begin(), l.end(), dptr);
+            _M_copy<device::cpu>(l.begin(), l.end(), dptr);
         } else {
             _M_deallocate(dptr, this->Size());
             shape = {l.size()};
@@ -416,6 +426,12 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         pointer result = first;
         first = nullptr;
         return result;
+    }
+
+    template <int ForwardDevType, typename ForwardIterator>
+    void _M_copy(ForwardIterator first,
+            ForwardIterator last, pointer result) {
+        copy_to_dev<ForwardIterator, pointer, ForwardDevType, DevType>::Copy(first, last, result);
     }
 };
 
