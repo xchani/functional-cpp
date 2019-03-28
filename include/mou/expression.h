@@ -201,7 +201,8 @@ F(const Exp<Tlhs> &lhs, const Exp<Tchs> &chs, const Exp<Trhs> &rhs) {
         OP_NAME<typename ScalarMapExp<Tlhs>::type, typename Trhs::type>,    \
         ScalarMapExp<Tlhs>, Trhs>                                           \
     operator OP_SYM (const Tlhs &lhs, const Exp<Trhs> &rhs) {               \
-        static auto expr = ScalarMapExp<Tlhs>(lhs);                         \
+        static Tlhs scalar = lhs;                                           \
+        static auto expr = ScalarMapExp<Tlhs>(scalar);                      \
         return F<OP_NAME>(expr, rhs);                                       \
     }
 
@@ -212,7 +213,8 @@ F(const Exp<Tlhs> &lhs, const Exp<Tchs> &chs, const Exp<Trhs> &rhs) {
         OP_NAME<typename Tlhs::type, typename ScalarMapExp<Trhs>::type>,    \
         Tlhs, ScalarMapExp<Trhs> >                                          \
     operator OP_SYM (const Exp<Tlhs> &lhs, const Trhs &rhs) {               \
-        static auto expr = ScalarMapExp<Trhs>(rhs);                         \
+        static Trhs scalar = rhs;                                           \
+        static auto expr = ScalarMapExp<Trhs>(scalar);                      \
         return F<OP_NAME>(lhs, expr);                                       \
     }
 
