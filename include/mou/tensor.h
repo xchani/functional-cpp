@@ -137,11 +137,11 @@ std::ostream& operator << (std::ostream& os, device dev) {
     return os;
 }
 
-template <typename InputIt, typename ForwardIt, int Dev>
-struct uninit_copy;
+template <typename InputIt, typename ForwardIt, int InputDevType, int ForwardDevType>
+struct uninit_copy_to_dev;
 
 template <typename InputIt, typename ForwardIt>
-struct uninit_copy<InputIt, ForwardIt, device::cpu> {
+struct uninit_copy_to_dev<InputIt, ForwardIt, device::cpu, device::cpu> {
     static ForwardIt Copy(InputIt first, InputIt last, ForwardIt d_first) {
         return std::uninitialized_copy(first, last, d_first);
     }
@@ -170,22 +170,25 @@ class Tensor : public expr::Exp<Tensor<DType> > {
     // TODO(Chenxia Han): Constructor with nested initializer_list
     Tensor(std::initializer_list<DType> l) {
         shape = {l.size()};
-        dptr = _M_allocate_and_copy(l.begin(), l.end());
+        // initializer_list must store in cpu
+        dptr = _M_allocate_and_copy<device::cpu>(l.begin(), l.end());
     }
 
+    // only support memory resource with the same device type
     explicit Tensor(pointer first, pointer last, Shape _shape)
         : shape(std::move(_shape)) {
         assert(last-first == _shape.Size());
-        dptr = _M_allocate_and_copy(first, last);
+        dptr = _M_allocate_and_copy<DevType>(first, last);
     }
 
     ~Tensor() {
         _M_deallocate(dptr, this->Size());
     }
 
+    // only support tensor in the same device type
     Tensor(const Tensor& src) {
         shape = src.shape;
-        dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.Size());
+        dptr = _M_allocate_and_copy<DevType>(src.dptr, src.dptr + src.Size());
     }
 
     Tensor(Tensor&& src) noexcept {
@@ -193,13 +196,14 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         dptr = _M_allocate_on_move(src.dptr);
     }
 
+    // only support tensor in the same device type
     Tensor& operator = (const Tensor& src) {
         if (shape == src.shape) {
             std::copy(src.dptr, src.dptr + src.Size(), dptr);
         } else {
             _M_deallocate(dptr, this->Size());
             shape = src.shape;
-            dptr = _M_allocate_and_copy(src.dptr, src.dptr + src.Size());
+            dptr = _M_allocate_and_copy<DevType>(src.dptr, src.dptr + src.Size());
         }
 
         return *this;
@@ -219,7 +223,8 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         } else {
             _M_deallocate(dptr, this->Size());
             shape = {l.size()};
-            dptr = _M_allocate_and_copy(l.begin(), l.end());
+            // initializer_list must store in cpu
+            dptr = _M_allocate_and_copy<device::cpu>(l.begin(), l.end());
         }
 
         return *this;
@@ -391,13 +396,13 @@ class Tensor : public expr::Exp<Tensor<DType> > {
         }
     }
 
-    template <typename ForwardIterator>
+    template <int ForwardDevType, typename ForwardIterator>
     pointer _M_allocate_and_copy(ForwardIterator first,
             ForwardIterator last) {
         auto n = last - first;
         pointer result = _M_allocate(n);
         try {
-            uninit_copy<ForwardIterator, pointer, DevType>::Copy(first, last, result);
+            uninit_copy_to_dev<ForwardIterator, pointer, ForwardDevType, DevType>::Copy(first, last, result);
             return result;
         } catch(...) {
             _M_deallocate(result, n);
